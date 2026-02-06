@@ -34,7 +34,7 @@ async def send_requests(
             "http://api.weatherapi.com/v1/current.json",
             params={
                 "key": settings.WEATHER_API_KEY,
-                "q": city.city,
+                "q": city.name,
                 "aqi": "no"
             }
         )
@@ -50,7 +50,7 @@ async def send_requests(
         db.add(DBTemperature(city_id=city.id, **update_map))
 
     except Exception as e:
-        print(f"Error updating {city.city}: {e}")
+        print(f"Error updating {city.name}: {e}")
 
 
 async def fetch_and_update_temperature(db: AsyncSession) -> dict[str, Any]:

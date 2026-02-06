@@ -1,15 +1,16 @@
-from typing import Any
+from typing import Any, Annotated
 
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from city.models import DBCity
 from city import schemas
-from dependencies import paginate
+from dependencies import paginate, get_db
 
 
 async def get_all_cities(
-        db: AsyncSession,
+        db: Annotated[AsyncSession, Depends(get_db)],
         page: int = 1,
         size: int = 10,
         city: str | None = None,
@@ -17,13 +18,13 @@ async def get_all_cities(
     query = select(DBCity)
     if city:
         query = query.where(
-            DBCity.city.ilike(f"%{city}%")
+            DBCity.name.ilike(f"%{city}%")
         )
     return await paginate(db=db, query=query, page=page, size=size)
 
 
 async def get_city_by_id(
-        db: AsyncSession,
+        db: Annotated[AsyncSession, Depends(get_db)],
         city_id: int
 ) -> DBCity | None:
     db_city = select(DBCity).where(DBCity.id == city_id)
@@ -35,7 +36,7 @@ async def create_city(
         city: schemas.CityCreate
 ) -> DBCity:
     db_city = DBCity(
-        city=city.city,
+        name=city.name,
         additional_info=city.additional_info,
     )
     db.add(db_city)
@@ -48,18 +49,17 @@ async def get_city_by_name(
         db: AsyncSession,
         city_name: str
 ) -> DBCity | None:
-    db_city = select(DBCity).where(DBCity.city == city_name)
+    db_city = select(DBCity).where(DBCity.name == city_name)
     return await db.scalar(db_city)
 
 
 async def delete_city_by_id(
         db: AsyncSession,
-        city_id: int
+        city: DBCity
 ) -> dict:
-    db_city = await get_city_by_id(db=db, city_id=city_id)
-    await db.delete(db_city)
+    await db.delete(city)
     await db.commit()
-    return {"Message": f"City {db_city.city} was deleted"}
+    return {"Message": f"City {city.name} was deleted"}
 
 
 async def city_update(

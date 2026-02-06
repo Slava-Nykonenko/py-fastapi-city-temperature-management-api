@@ -8,5 +8,5 @@ class DBCity(Base):
     __tablename__ = "cities"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    city: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     additional_info: Mapped[str] = mapped_column(String(255))

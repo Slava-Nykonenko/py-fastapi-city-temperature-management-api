@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context  # noqa
 from settings import settings
 from database import Base
+from city.models import DBCity  # noqa
+from temperature.models import DBTemperature  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

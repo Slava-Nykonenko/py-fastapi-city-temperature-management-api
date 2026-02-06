@@ -14,7 +14,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
 
 
 class CityBase(BaseModel):
-    city: str
+    name: str
     additional_info: str
 
 
@@ -27,7 +27,7 @@ class CityUpdate(CityBase):
 
 
 class CityPatch(BaseModel):
-    city: str | None = None
+    name: str | None = None
     additional_info: str | None = None
 
 

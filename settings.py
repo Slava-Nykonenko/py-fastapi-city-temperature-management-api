@@ -1,21 +1,15 @@
-from os import getenv
-
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
-
-load_dotenv()
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "City Temperature Management API"
+    DATABASE_URL: str = Field(description="Database URL")
+    WEATHER_API_KEY: str = Field(description="Weather API Key")
 
-    DATABASE_URL: str | None = getenv("DATABASE_URL")
-
-    WEATHER_API_KEY: str | None = getenv("WEATHER_API_KEY")
-
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8"
+    )
 
 
 settings = Settings()

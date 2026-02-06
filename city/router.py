@@ -19,7 +19,7 @@ async def list_of_cities(
         page: int = 1,
         size: int = 10,
         city: str = None
-) -> Sequence[DBCity]:
+) -> dict[str, schemas.City]:
     return await crud.get_all_cities(db, page, size, city)
 
 
@@ -39,7 +39,7 @@ async def create_city(
         city: schemas.CityCreate,
         db: Annotated[AsyncSession, Depends(get_db)]
 ) -> models.DBCity:
-    db_city = await crud.get_city_by_name(db=db, city_name=city.city)
+    db_city = await crud.get_city_by_name(db=db, city_name=city.name)
     if db_city is not None:
         raise HTTPException(status_code=400, detail="City already exists")
     return await crud.create_city(db, city)
@@ -53,7 +53,7 @@ async def delete_city(
     db_city = await crud.get_city_by_id(db, city_id)
     if db_city is None:
         raise HTTPException(status_code=404, detail="City not found")
-    return await crud.delete_city_by_id(db, city_id)
+    return await crud.delete_city_by_id(db, db_city)
 
 
 @router.put("/cities/{city_id}/", response_model=schemas.City)
