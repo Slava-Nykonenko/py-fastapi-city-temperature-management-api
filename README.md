@@ -11,6 +11,32 @@ current temperatures using a third-party Weather API.
 * Async Performance: Fully asynchronous database operations using SQLAlchemy and aiosqlite.
 * Migrations: Database version control with Alembic.
 
+## Design Choices & Assumptions
+* **Failure-First Configuration:** Following best practices for production-ready 
+apps, DATABASE_URL and WEATHER_API_KEY are defined as required fields in 
+Pydantic. If these environment variables are missing, the application will 
+raise a ValidationError on startup rather than failing silently later.
+
+* **Database Efficiency:**
+  * **Direct Object Manipulation:** To minimize redundant database queries, 
+  CRUD functions (like delete_city_by_id) accept SQLAlchemy model objects 
+  directly when they have already been fetched by the router for validation.
+  * **Async Driver:** I utilized sqlite+aiosqlite to ensure the database 
+  remains non-blocking during heavy I/O operations.
+* **High-Concurrency Updates:** The `POST /temperatures/update` endpoint uses 
+asyncio.TaskGroup (Python 3.11+) to fetch weather data for all cities 
+simultaneously. This allows the system to scale efficiently regardless of 
+how many cities are stored in the database.
+* **Scalable Pagination:** All "list" endpoints utilize a centralized pagination 
+dependency. This ensures consistent API responses and prevents performance 
+degradation as the data grows.
+* **Robust Logging:** I replaced standard print() statements with the Python 
+logging module in the temperature update logic. This allows for better error 
+tracking and production monitoring.
+* **Modern Typing:** I leveraged the Annotated syntax for dependency injection, 
+aligning with the latest FastAPI recommendations for cleaner, more readable 
+code and better IDE support.
+
 ## Tech Stack
 
 * Framework: FastAPI
